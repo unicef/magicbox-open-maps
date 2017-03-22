@@ -10,18 +10,30 @@ export default function reducer(state={
   }, action) {
     switch(action.type) {
       case 'COUNTRIES_FETCHED':
-        var countries = Object.keys(action.payload.data.countries).map(c => {
-          return [
-            countryCodeIndex[c],
-            parseInt(
+        var countries = Object.keys(action.payload.data.countries).reduce((ary, c) => {
+          var area = parseInt(
+            action.payload.data.countries[c][
+              Object.keys(
+                action.payload.data.countries[c]
+              )[0]][0].sq_km, 10
+            );
+          var population = parseInt(
               action.payload.data.countries[c][
                 Object.keys(
                   action.payload.data.countries[c]
-                )[0]][0]['gadm2-8'], 10
+                )[0]][0].population, 10
               )
-          ]
-        });
-        countries.unshift(['Country', 'admin level']);
+              console.log(c, population/area)
+            if (c!='sgp') {
+              ary.push([
+                countryCodeIndex[c],
+                (population)
+              ])
+
+            }
+          return ary;
+        }, []);
+        countries.unshift(['Country', 'Population']);
         return {
           ...state,
           countries: countries
