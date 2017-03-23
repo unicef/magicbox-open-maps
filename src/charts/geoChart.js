@@ -14,7 +14,6 @@ class GeoChart extends React.Component {
         selectedCountryIndex[0].row + 1
       ][0]
     ];
-    console.log(iso_3_country)
     this.props.dispatch(fetchCountry(iso_3_country));
   }
 

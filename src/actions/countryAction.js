@@ -14,6 +14,17 @@ export function fetchCountries() {
   }
 }
 
+export function recolorCountries(colorByValue) {
+  return function(dispatch) {
+    dispatch({
+      type: 'RECOLOR_MAP',
+      payload: {
+        colorByValue: colorByValue,
+      }
+    })
+  }
+}
+
 export function fetchCountry(country_code) {
   return function(dispatch) {
     axios.get(api_url + 'population/' + country_code)
