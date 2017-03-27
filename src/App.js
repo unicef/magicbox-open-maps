@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Container from './components/container';
 import { fetchCountries } from './actions/countryAction';
+import Geo from './charts/geoChart';
+import MyMap from './components/MyMap';
+import ColorByRadioGroup from './components/colorByRadioGroup';
+import { Container, Grid, Row, Col } from 'react-bootstrap';
+// var map_controller = new MapController({
+//   focus: [-23.3, -46.3]   // São Paulo.
+// });
 
-// import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
@@ -13,9 +18,20 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-          <Container countries={this.props.countries} colorBy={this.props.colorBy}/>
-        <p className="App-intro">
-        </p>
+          <Grid>
+            <Row className="show-grid">
+              <Col md={12}>
+                <ColorByRadioGroup country={this.props.country}/>
+                <Geo country={this.props.country}/>
+              </Col>
+            </Row>
+            <Row className="show-grid">
+              <Col xs={12} md={12}>
+              <MyMap country={this.props.country} />
+              </Col>
+            </Row>
+          </Grid>
+
       </div>
     );
   }
@@ -25,7 +41,6 @@ class App extends Component {
 // It will return back a connected component depending on the passed mapper function
 export default connect(state => (
   {
-    colorBy: state.country.colorBy,
-    countries: state.country.countries
+    country: state.country
   }
 ))(App)

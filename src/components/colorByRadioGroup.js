@@ -7,7 +7,7 @@ class ColorByRadioGroup extends Component {
      super(params)
      // initial gender state set from props
      this.state = {
-       colorBy: this.props.colorBy
+       colorBy: this.props.country.colorBy,
      }
      this.setColorBy = this.setColorBy.bind(this)
   }
@@ -20,14 +20,27 @@ class ColorByRadioGroup extends Component {
   }
 
   render() {
-    const {colorBy} = this.state
-    return  <div>
+
+    var colorBy = this.props.country.colorBy;
+    var countryName = this.props.country.country_name;
+    var scope = {
+      textAlign: 'left',
+      position: 'relative',
+      top: '200px',
+      height: '25px',
+      zIndex: 2
+    };
+    return  <div >
         <div>
-          <p>
+          <p style={scope}>
             <input type="radio" checked={colorBy === "population"} onChange={this.setColorBy} value="population" /> population
           </p>
-          <p>
-            <input type="radio" checked={colorBy === "density"} onChange={this.setColorBy} value="density"  /> population density
+          <p style={scope}>
+            <input type="radio" checked={colorBy === "pop_density"} onChange={this.setColorBy} value="pop_density"  /> population density
+          </p>
+          <p style={scope}>
+            {countryName}
+            {this.props.country.admin_level}
           </p>
         </div>
       </div>;

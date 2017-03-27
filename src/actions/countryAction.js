@@ -1,4 +1,6 @@
 var config = require('../../config');
+var country_codes = require('../utils/country_codes')
+var country_centroids = require('../utils/country_centroid')
 var api_url = config.api_url;
 import axios from 'axios';
 
@@ -25,15 +27,32 @@ export function recolorCountries(colorByValue) {
   }
 }
 
-export function fetchCountry(country_code) {
+export function displayCountry(country_name) {
   return function(dispatch) {
+    dispatch({
+      type: 'countrySelected',
+      payload: {
+        country: country_codes[country_name],
+        country_name: country_name,
+        centroid: country_centroids[country_codes[country_name]]
+      }
+    })
+  }
+}
+
+export function fetchCountry(country_name) {
+  var country_code = country_codes[country_name];
+  return function(dispatch) {
+    console.log('About to fetch', country_code)
     axios.get(api_url + 'population/' + country_code)
     .then(response => {
+      console.log(country_name, 'Fetched!')
+      var geojson = response.data;
       dispatch({
         type: 'COUNTRY_FETCHED',
         payload: {
           country: country_code,
-          response: response
+          geojson: geojson
         }
       })
     })
