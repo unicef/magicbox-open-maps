@@ -4,7 +4,6 @@ import { render } from 'react-dom';
 
 function get_max_min(geojson, kind) {
   var max;
-  console.log(kind)
   geojson.features.forEach(f => {
     var value = f.properties[kind];
     max = max ? (value > max ? value : max) : value;
@@ -31,11 +30,14 @@ class MyMap extends React.Component {
     var geojson = this.props.country.geojson;
     var colorBy = this.props.country.colorBy;
     if (window.map) {
-
+      if (window.map.hasLayer(window.geojson_layer)) {
+        window.map.removeLayer(window.geojson_layer)
+      }
+      // console.log(window.map.has)
       if (geojson) {
         var high = get_max_min(geojson, colorBy);
         window.map.setView(centroid, 6)
-        L.geoJSON(geojson, {
+        window.geojson_layer = L.geoJSON(geojson, {
           style: (f) => {
             var log = high/4;
             var pop = f.properties[colorBy];
@@ -50,7 +52,7 @@ class MyMap extends React.Component {
               fillOpacity: strength
             }
           }
-      }).addTo(window.map);
+        }).addTo(window.map);
       }
     }
     return <div >
