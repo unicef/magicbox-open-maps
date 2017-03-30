@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import React from 'react';
 import { fetchCountry } from '../actions/countryAction';
 import { displayCountry } from '../actions/countryAction';
+var config = require('../../config');
 
 class GeoChart extends React.Component {
   onChange = Chart => {
@@ -26,7 +27,7 @@ class GeoChart extends React.Component {
   }
 
   render() {
-
+    var myMapsApiKey = config.google_api_key;
     return (
       <div className={'my-pretty-chart-container'}>
         <Chart
@@ -36,6 +37,7 @@ class GeoChart extends React.Component {
           graph_id="GeoChart"
           width="100%"
           height="400px"
+          mapsApiKey={myMapsApiKey}
           legend_toggle
           chartEvents={this.chartEvents}
         />
