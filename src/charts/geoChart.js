@@ -7,6 +7,7 @@ var config = require('../../config');
 
 class GeoChart extends React.Component {
   onChange = Chart => {
+    console.log('hi Fetch!')
     const selectedCountryIndex = Chart.chart.getSelection()
     var country_name =
       this.props.country.countries[
@@ -30,7 +31,7 @@ class GeoChart extends React.Component {
     var myMapsApiKey = config.google_api_key;
     return (
       <div className={'my-pretty-chart-container'}>
-        {myMapsApiKey}
+
         <Chart
           api-key={ myMapsApiKey }
           chartType="GeoChart"
