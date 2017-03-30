@@ -46,7 +46,7 @@ class MyMap extends React.Component {
             return {
               fillColor: 'red',
               color: 'black',
-              weight: 1,
+              weight: 0.1,
               dashArray: '3',
               opacity: 0.65,
               fillOpacity: strength
