@@ -4,7 +4,7 @@ import { fetchCountries } from './actions/countryAction';
 import Geo from './charts/geoChart';
 import MyMap from './components/MyMap';
 import ColorByRadioGroup from './components/colorByRadioGroup';
-import { Container, Grid, Row, Col } from 'react-bootstrap';
+import { Grid, Row, Col } from 'react-bootstrap';
 // var map_controller = new MapController({
 //   focus: [-23.3, -46.3]   // São Paulo.
 // });
@@ -16,18 +16,25 @@ class App extends Component {
     this.props.dispatch(fetchCountries());
   }
   render() {
+    var side_style = {
+      textAlign: 'left',
+      position: 'relative',
+      top: '200px',
+      height: '25px',
+      zIndex: 2
+    };
     return (
       <div className="App">
           <Grid>
             <Row className="show-grid">
               <Col md={12}>
-                <ColorByRadioGroup country={this.props.country}/>
+                <ColorByRadioGroup country={this.props.country} side_style={side_style}/>
                 <Geo country={this.props.country}/>
               </Col>
             </Row>
             <Row className="show-grid">
               <Col xs={12} md={12}>
-              <MyMap country={this.props.country} />
+              <MyMap country={this.props.country} side_style={side_style}/>
               </Col>
             </Row>
           </Grid>
