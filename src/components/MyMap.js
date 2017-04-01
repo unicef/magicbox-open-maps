@@ -2,26 +2,32 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { rescaleColorCountries } from '../actions/countryAction';
 import L from 'leaflet';
-function get_max(geojson, kind) {
-  var max;
-  geojson.features.forEach(f => {
-    var value = f.properties[kind];
-    max = max ? (value > max ? value : max) : value;
-    // min = min ? (value < min ? value : min) : value;
-  });
-  return max;
+
+window.zoom_level = 6;
+
+function remove_layer(map, layer) {
+  if (layer) {
+    if (map.hasLayer(layer)) {
+      map.removeLayer(layer)
+    }
+  }
+  return map;
 }
 
-function get_strength(feature, high, colorBy, scaleColorBy) {
-  var pop = feature.properties[colorBy];
-  if (scaleColorBy.match(/linear/)) {
-    return pop/high;
-  } else {
-    var log = high/4;
-    return pop >= log ? (pop/high) : (pop/log)
-  }
+function remove_layers(map, country) {
+  var kinds = ['layer_population', 'layer_pop_density'];
+  var scales = ['linear', 'logarithmic'];
+  kinds.forEach(k => {
+    if (country[k]) {
+      scales.forEach(s => {
+        var layer = country[k][s];
+        map = remove_layer(map, layer);
+      })
+    }
+  })
+  return map;
 }
-window.zoom_level = 8;
+
 class MyMap extends React.Component {
   constructor(params) {
      super(params)
@@ -58,29 +64,24 @@ class MyMap extends React.Component {
     var scaleColorBy = this.props.country.scaleColorBy;
     var colorBy = this.props.country.colorBy;
     if (window.map) {
-      window.map.on('zoomend', function (e) {
-        window.zoom_level = e.target._zoom;
-     });
-      if (window.map.hasLayer(window.geojson_layer)) {
-        window.map.removeLayer(window.geojson_layer)
-      }
+
+      // window.map.on('zoomend', function (e) {
+      //   window.zoom_level = e.target._zoom;
+      // });
+
+            // if (window.map.hasLayer(window.geojson_layer)) {
+      //   window.map.removeLayer(window.geojson_layer)
+      // }
       // console.log(window.map.has)
-      if (geojson) {
-        var high = get_max(geojson, colorBy);
+
+      if (this.props.country.layer_population) {
+        remove_layers(window.map, this.props.country);
         window.map.setView(centroid, window.zoom_level)
-        window.geojson_layer = L.geoJSON(geojson, {
-          style: (f) => {
-            var strength = get_strength(f, high, colorBy, scaleColorBy)
-            return {
-              fillColor: 'red',
-              color: 'black',
-              weight: 0.1,
-              dashArray: '3',
-              opacity: 0.65,
-              fillOpacity: strength
-            }
-          }
-        }).addTo(window.map);
+        if (colorBy.match(/population/)) {
+          this.props.country.layer_population[scaleColorBy].addTo(window.map);
+        } else {
+          this.props.country.layer_pop_density[scaleColorBy].addTo(window.map);
+        }
       }
     }
     return <div >
@@ -96,6 +97,7 @@ class MyMap extends React.Component {
     </div>
   }
 }
+
 export default connect(state => {
     return {};
   }
