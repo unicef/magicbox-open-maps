@@ -3,7 +3,9 @@ import { connect } from 'react-redux';
 import { rescaleColorCountries } from '../actions/countryAction';
 import { recordZoom } from '../actions/mapAction';
 import { setPanLocation } from '../actions/mapAction';
+import ColorByRadioGroup from './colorByRadioGroup';
 import L from 'leaflet';
+require('../css/overlay-controls-box.css');
 
 function remove_layer(layer) {
   if (layer) {
@@ -12,7 +14,6 @@ function remove_layer(layer) {
       window.map.removeLayer(layer)
     }
   }
-  // return map;
 }
 
 function remove_layers(country) {
@@ -77,6 +78,7 @@ class MyMap extends React.Component {
     var geojson = this.props.country.geojson;
     var scaleColorBy = this.props.country.scaleColorBy;
     var colorBy = this.props.country.colorBy;
+
     if (window.map) {
       window.map.on('dragend', this.setMapCenter);
       window.map.on('zoomend', this.setZoomLevel);
@@ -92,12 +94,17 @@ class MyMap extends React.Component {
       }
     }
     return <div >
-      <div >
+
+      <div id ='floating-panel'>
+        <ColorByRadioGroup country={this.props.country} side_style={this.props.side_style}/>
         <p style={side_style}>
           <input type='radio' checked={scaleColorBy === "linear"} onChange={this.setScaleColorBy} value="linear" /> linear
         </p>
         <p style={side_style}>
           <input type='radio' checked={scaleColorBy === "logarithmic"} onChange={this.setScaleColorBy} value='logarithmic'  /> logarithmic
+        </p>
+        <p>
+          {this.props.country.country_name} &nbsp; {this.props.country.admin_level}
         </p>
       </div>
       <div id="map" />

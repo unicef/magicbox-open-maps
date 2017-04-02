@@ -21,20 +21,14 @@ class ColorByRadioGroup extends Component {
 
   render() {
     var colorBy = this.props.country.colorBy;
-    var countryName = this.props.country.country_name;
     var side_style = this.props.side_style;
     return  <div >
-        <div>
           <p style={side_style}>
             <input type="radio" checked={colorBy === "population"} onChange={this.setColorBy} value="population" /> population
           </p>
           <p style={side_style}>
             <input type="radio" checked={colorBy === "pop_density"} onChange={this.setColorBy} value="pop_density"  /> population density
           </p>
-          <p style={side_style}>
-            {countryName} &nbsp; {this.props.country.admin_level}
-          </p>
-        </div>
       </div>;
   }
 }

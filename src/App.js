@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { fetchCountries } from './actions/countryAction';
 import Geo from './charts/geoChart';
 import MyMap from './components/MyMap';
-import ColorByRadioGroup from './components/colorByRadioGroup';
 import { Grid, Row, Col } from 'react-bootstrap';
 
 import './App.css';
@@ -16,16 +15,17 @@ class App extends Component {
     var side_style = {
       textAlign: 'left',
       position: 'relative',
-      top: '200px',
       height: '25px',
       zIndex: 2
     };
+    var border = {
+      border: 'solid green 1px'
+    }
     return (
       <div className="App">
-          <Grid>
+          <Grid >
             <Row className="show-grid">
               <Col md={12}>
-                <ColorByRadioGroup country={this.props.country} side_style={side_style}/>
                 <Geo country={this.props.country}/>
               </Col>
             </Row>
