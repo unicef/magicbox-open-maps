@@ -5,9 +5,6 @@ import Geo from './charts/geoChart';
 import MyMap from './components/MyMap';
 import ColorByRadioGroup from './components/colorByRadioGroup';
 import { Grid, Row, Col } from 'react-bootstrap';
-// var map_controller = new MapController({
-//   focus: [-23.3, -46.3]   // São Paulo.
-// });
 
 import './App.css';
 
@@ -34,7 +31,7 @@ class App extends Component {
             </Row>
             <Row className="show-grid">
               <Col xs={12} md={12}>
-              <MyMap country={this.props.country} side_style={side_style}/>
+              <MyMap country={this.props.country} side_style={side_style} map={this.props.map}/>
               </Col>
             </Row>
           </Grid>
@@ -48,6 +45,7 @@ class App extends Component {
 // It will return back a connected component depending on the passed mapper function
 export default connect(state => (
   {
-    country: state.country
+    country: state.country,
+    map: state.map
   }
 ))(App)

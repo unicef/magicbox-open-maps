@@ -4,96 +4,101 @@ var FileSaver = require('file-saver');
 var L = require('leaflet');
 
 export default function reducer(state={
-    admin_level: null,
-    centroid: [33.939110, 67.709953],
-    // Formatted for google geo-chart
-    countries: [['country']],
-    // Array of countries and their meta data from api
-    countries_raw: null,
-    // ISO 3 letter code
-    country: null,
-    country_name: null,
-    geojson: null,
-    // Options include population, population density
-    colorBy: 'population',
-    scaleColorBy: 'logarithmic',
-    fetching: false,
-    fetched: false,
-    layer_population: null,
-    layer_pop_density: null,
-    error: null,
-    area: null
-  }, action) {
-    switch(action.type) {
-      case 'countrySelected':
-        var country = action.payload.country;
-        return {
-          ...state,
-          admin_level: determine_admin_level(country, state),
-          country: country,
-          country_name: action.payload.country_name,
-          centroid: action.payload.centroid
-        }
+  // Formatted for google geo-chart
+  countries: [['country']],
+  // Array of countries and their meta data from api
+  countries_raw: null,
+  // ISO 3 letter code
+  country: null,
+  country_name: null,
+  geojson: null,
+  // Options include population, population density
+  colorBy: 'population',
+  scaleColorBy: 'logarithmic',
+  fetching: false,
+  fetched: false,
+  layer_population: null,
+  layer_pop_density: null,
+  layer_population_old: null,
+  layer_pop_density_old: null,
+  error: null,
+  area: null
+}, action) {
+  switch(action.type) {
+    case 'COUNTRY_SELECTED':
+      var country = action.payload.country;
+      return {
+        ...state,
+        admin_level: determine_admin_level(country, state),
+        country: country,
+        country_name: action.payload.country_name,
+      }
+    break;
+    case 'COUNTRIES_FETCHED':
+      // json list of countries with population available
+      var countries_raw = action.payload.data.countries;
+      var countries = process_countries(
+        action,
+        countries_raw,
+        state.colorBy
+      );
+      return {
+        ...state,
+        countries_raw: countries_raw,
+        countries: countries
+      }
       break;
-      case 'COUNTRIES_FETCHED':
-        // json list of countries with population available
-        var countries_raw = action.payload.data.countries;
-        var countries = process_countries(
-          action,
-          countries_raw,
-          state.colorBy
-        );
+    case 'RECOLOR_MAP':
+      // Process countries for color on Google geoChart
+      countries = process_countries(
+        action,
+        state.countries_raw,
+        action.payload.colorByValue
+      );
+      return {
+        ...state,
+        layer_population_old: state.layer_population,
+        layer_pop_density_old: state.layer_pop_density,
+        countries: countries,
+        colorBy: action.payload.colorByValue
+      }
+      break;
+      case 'RESCALE_COLOR_MAP':
         return {
           ...state,
-          countries_raw: countries_raw,
-          countries: countries
+          layer_population_old: state.layer_population,
+          layer_pop_density_old: state.layer_pop_density,
+          scaleColorBy: action.payload.scaleColorByValue
         }
         break;
-      case 'RECOLOR_MAP':
-        // Process countries for color on Google geoChart
-        countries = process_countries(
-          action,
-          state.countries_raw,
-          action.payload.colorByValue
-        );
-        return {
-          ...state,
-          countries: countries,
-          colorBy: action.payload.colorByValue
-        }
-        break;
-        case 'RESCALE_COLOR_MAP':
-          return {
-            ...state,
-            scaleColorBy: action.payload.scaleColorByValue
-          }
-          break;
-      case 'COUNTRY_FETCHED':
-        // var admin_level = action.payload.admin_level;
-        // var country_code = action.payload.country;
-        var geojson = action.payload.geojson;
-        // var blob = new Blob([JSON.stringify(geojson)], {type: "data:text/json;charset=utf-8"});
-        // FileSaver.saveAs(blob, country_code + '.json');
-        return {
-          ...state,
-          // admin_level: action.payload.admin_level,
-          country: action.payload.country,
-          geojson: geojson,
-          layer_population: {
-            linear: create_layer('population', geojson, 'linear'),
-            logarithmic: create_layer('population', geojson, 'logarithmic')
-          },
-          layer_pop_density:{
-            linear: create_layer('pop_density', geojson, 'linear'),
-            logarithmic: create_layer('pop_density', geojson, 'logarithmic')
-          },
-          area: get_total(geojson, 'sq_km')
-        };
-        break;
-      default:
-        return state;
-    }
+    case 'COUNTRY_FETCHED':
+      // var admin_level = action.payload.admin_level;
+      // var country_code = action.payload.country;
+      var geojson = action.payload.geojson;
+      // var blob = new Blob([JSON.stringify(geojson)], {type: "data:text/json;charset=utf-8"});
+      // FileSaver.saveAs(blob, country_code + '.json');
+      return {
+        ...state,
+        // admin_level: action.payload.admin_level,
+        country: action.payload.country,
+        geojson: geojson,
+        layer_population_old: state.layer_population,
+        layer_pop_density_old: state.layer_pop_density,
+        layer_population: {
+          linear: create_layer('population', geojson, 'linear'),
+          logarithmic: create_layer('population', geojson, 'logarithmic')
+        },
+        layer_pop_density:{
+          linear: create_layer('pop_density', geojson, 'linear'),
+          logarithmic: create_layer('pop_density', geojson, 'logarithmic')
+        },
+        area: get_total(geojson, 'sq_km')
+      };
+      break;
+    default:
+      return state;
   }
+}
 
 function get_max(geojson, kind) {
   var max;
@@ -121,7 +126,7 @@ function create_layer(colorBy, geojson, scaleColorBy) {
     style: (f) => {
       var strength = get_strength(f, high, colorBy, scaleColorBy)
       return {
-        fillColor: 'red',
+        fillColor: 'blue',
         color: 'black',
         weight: 0.1,
         dashArray: '3',

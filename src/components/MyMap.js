@@ -1,31 +1,33 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { rescaleColorCountries } from '../actions/countryAction';
+import { recordZoom } from '../actions/mapAction';
+import { setPanLocation } from '../actions/mapAction';
 import L from 'leaflet';
 
-window.zoom_level = 6;
-
-function remove_layer(map, layer) {
+function remove_layer(layer) {
   if (layer) {
-    if (map.hasLayer(layer)) {
-      map.removeLayer(layer)
+
+    if (window.map.hasLayer(layer)) {
+      window.map.removeLayer(layer)
     }
   }
-  return map;
+  // return map;
 }
 
-function remove_layers(map, country) {
-  var kinds = ['layer_population', 'layer_pop_density'];
+function remove_layers(country) {
+  var kinds = ['layer_population_old', 'layer_pop_density_old'];
   var scales = ['linear', 'logarithmic'];
   kinds.forEach(k => {
     if (country[k]) {
       scales.forEach(s => {
         var layer = country[k][s];
-        map = remove_layer(map, layer);
+        // console.log(k, s, country[k][s])
+        remove_layer(layer);
       })
     }
   })
-  return map;
+  // return map;
 }
 
 class MyMap extends React.Component {
@@ -33,10 +35,12 @@ class MyMap extends React.Component {
      super(params)
      // initial gender state set from props
      this.state = {
-       colorBy: this.props.country.colorBy,
-       scaleColorBy: this.props.country.scaleColorBy,
+      //  colorBy: this.props.country.colorBy,
+      //  scaleColorBy: this.props.country.scaleColorBy,
      }
      this.setScaleColorBy = this.setScaleColorBy.bind(this)
+     this.setZoomLevel = this.setZoomLevel.bind(this)
+     this.setMapCenter = this.setMapCenter.bind(this)
   }
 
   setScaleColorBy(e) {
@@ -46,12 +50,21 @@ class MyMap extends React.Component {
     this.props.dispatch(rescaleColorCountries(e.target.value));
   }
 
+  setZoomLevel(e) {
+    this.props.dispatch(recordZoom(e.target._zoom, window.map.getCenter()));
+  }
+
+  setMapCenter(e) {
+    this.props.dispatch(setPanLocation(window.map.getCenter()));
+  }
+
   componentDidMount() {
     this.map();
   }
 
   map() {
-    window.map = L.map('map').setView([51.505, -0.09], 3);
+
+    window.map = L.map('map').setView(this.props.map.latLng, this.props.map.zoom_level);
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(window.map);
@@ -59,24 +72,18 @@ class MyMap extends React.Component {
 
   render() {
     var side_style = this.props.side_style;
-    var centroid = this.props.country.centroid;
+    var map_center = this.props.map.latLng;
+    var zoom_level = this.props.map.zoom_level;
     var geojson = this.props.country.geojson;
     var scaleColorBy = this.props.country.scaleColorBy;
     var colorBy = this.props.country.colorBy;
     if (window.map) {
-
-      // window.map.on('zoomend', function (e) {
-      //   window.zoom_level = e.target._zoom;
-      // });
-
-            // if (window.map.hasLayer(window.geojson_layer)) {
-      //   window.map.removeLayer(window.geojson_layer)
-      // }
-      // console.log(window.map.has)
+      window.map.on('dragend', this.setMapCenter);
+      window.map.on('zoomend', this.setZoomLevel);
 
       if (this.props.country.layer_population) {
-        remove_layers(window.map, this.props.country);
-        window.map.setView(centroid, window.zoom_level)
+        remove_layers(this.props.country);
+        window.map.setView(map_center, zoom_level)
         if (colorBy.match(/population/)) {
           this.props.country.layer_population[scaleColorBy].addTo(window.map);
         } else {

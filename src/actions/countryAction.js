@@ -43,11 +43,11 @@ export function rescaleColorCountries(scaleColorByValue) {
 export function displayCountry(country_name) {
   return function(dispatch) {
     dispatch({
-      type: 'countrySelected',
+      type: 'COUNTRY_SELECTED',
       payload: {
         country: country_codes[country_name],
         country_name: country_name,
-        centroid: country_centroids[country_codes[country_name]]
+        latLng: country_centroids[country_codes[country_name]]
       }
     })
   }
