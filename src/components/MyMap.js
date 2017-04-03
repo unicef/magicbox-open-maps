@@ -5,6 +5,8 @@ import { recordZoom } from '../actions/mapAction';
 import { setPanLocation } from '../actions/mapAction';
 import ColorByRadioGroup from './colorByRadioGroup';
 import L from 'leaflet';
+var FileSaver = require('file-saver');
+
 require('../css/overlay-controls-box.css');
 
 function remove_layer(layer) {
@@ -42,6 +44,7 @@ class MyMap extends React.Component {
      this.setScaleColorBy = this.setScaleColorBy.bind(this)
      this.setZoomLevel = this.setZoomLevel.bind(this)
      this.setMapCenter = this.setMapCenter.bind(this)
+     this.download_geojson = this.download_geojson.bind(this)
   }
 
   setScaleColorBy(e) {
@@ -50,7 +53,10 @@ class MyMap extends React.Component {
     })
     this.props.dispatch(rescaleColorCountries(e.target.value));
   }
-
+  download_geojson(e) {
+    var blob = new Blob([JSON.stringify(this.props.country.geojson)], {type: "data:text/json;charset=utf-8"});
+    FileSaver.saveAs(blob, this.props.country.country + '.json');
+  }
   setZoomLevel(e) {
     this.props.dispatch(recordZoom(e.target._zoom, window.map.getCenter()));
   }
@@ -79,6 +85,11 @@ class MyMap extends React.Component {
     var scaleColorBy = this.props.country.scaleColorBy;
     var colorBy = this.props.country.colorBy;
 
+    var shape_loaded = {
+      display: !!geojson ? 'inline' : 'none',
+      fontSize: '14px',
+    };
+
     if (window.map) {
       window.map.on('dragend', this.setMapCenter);
       window.map.on('zoomend', this.setZoomLevel);
@@ -95,17 +106,25 @@ class MyMap extends React.Component {
     }
     return <div >
 
-      <div id ='floating-panel'>
+      <div id='floating-panel'>
         <ColorByRadioGroup country={this.props.country} side_style={this.props.side_style}/>
+        <hr/>
         <p style={side_style}>
           <input type='radio' checked={scaleColorBy === "linear"} onChange={this.setScaleColorBy} value="linear" /> linear
         </p>
         <p style={side_style}>
           <input type='radio' checked={scaleColorBy === "logarithmic"} onChange={this.setScaleColorBy} value='logarithmic'  /> logarithmic
         </p>
-        <p>
-          {this.props.country.country_name} &nbsp; {this.props.country.admin_level}
-        </p>
+        <hr/>
+        <div style={shape_loaded}>
+          <p style={side_style}>
+            {this.props.country.country_name}
+            <br/>
+            admin level: {this.props.country.admin_level}
+            <br/>
+            <button type="button" className="btn btn-primary" onClick={this.download_geojson}>download</button>
+          </p>
+        </div>
       </div>
       <div id="map" />
     </div>

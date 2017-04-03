@@ -76,7 +76,7 @@ export default function reducer(state={
       // var country_code = action.payload.country;
       var geojson = action.payload.geojson;
       // var blob = new Blob([JSON.stringify(geojson)], {type: "data:text/json;charset=utf-8"});
-      // FileSaver.saveAs(blob, country_code + '.json');
+      // FileSaver.saveAs(blob, 'aaa' + '.json');
       return {
         ...state,
         // admin_level: action.payload.admin_level,

@@ -1,36 +1,9 @@
-div.overlay-controls {
-    /* relative */
-    position: relative;
-    top: 100px;
-    left: 10px;
-    width: 300px;
-}
-
-div.overlay-controls-section {
-    margin: 10px;
-    padding: 5px 15px 5px 15px;
-    box-shadow: 1px 1px 1px grey;
-    background-color: #ffffff;
-    opacity: 0.8;
-}
-
-/* Note! This affects all backbone buttons (e.g. in CountrySelector and
- * DataSourceSelector). The `active` color is the same, but the non-active color
- * is lighter to make it easier to tell what options aren't enabled. */
-
-.overlay-controls .btn-primary {
-    background-color: #95aacc;
-}
-
-.overlay-controls .btn-primary.active {
-    background-color: #204d74;
-}
-
 #floating-panel {
       opacity: 0.8;
   position: absolute;
   top: 100px;
   left: 20px;
+  height:340px;
   z-index: 5;
   background-color: #fff;
   padding: 5px;
