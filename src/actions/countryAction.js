@@ -21,7 +21,7 @@ export function fetchCountries() {
 export function recolorCountries(colorByValue) {
   return function(dispatch) {
     dispatch({
-      type: 'RECOLOR_MAP',
+      type: 'RECOLOR_GEOCHART',
       payload: {
         colorByValue: colorByValue,
       }
@@ -32,9 +32,9 @@ export function recolorCountries(colorByValue) {
 export function rescaleColorCountries(scaleColorByValue) {
   return function(dispatch) {
     dispatch({
-      type: 'RESCALE_COLOR_MAP',
+      type: 'RESCALE_GEOCHART_COLOR',
       payload: {
-        scaleColorByValue: scaleColorByValue,
+        scaleColorBy: scaleColorByValue,
       }
     })
   }

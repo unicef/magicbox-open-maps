@@ -70,7 +70,6 @@ class MyMap extends React.Component {
   }
 
   map() {
-
     window.map = L.map('map').setView(this.props.map.latLng, this.props.map.zoom_level);
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -105,7 +104,6 @@ class MyMap extends React.Component {
       }
     }
     return <div >
-
       <div id='floating-panel'>
         <ColorByRadioGroup country={this.props.country} side_style={this.props.side_style}/>
         <hr/>

@@ -26,7 +26,7 @@ class App extends Component {
           <Grid >
             <Row className="show-grid">
               <Col md={12}>
-                <Geo country={this.props.country}/>
+                <Geo colorBy={this.props.country.colorBy} scaleColorBy={this.props.country.scaleColorBy} geoChart_data={this.props.country.geoChart_data}/>
               </Col>
             </Row>
             <Row className="show-grid">

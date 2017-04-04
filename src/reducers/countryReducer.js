@@ -6,6 +6,8 @@ var L = require('leaflet');
 export default function reducer(state={
   // Formatted for google geo-chart
   countries: [['country']],
+  dimensions: ['population', 'pop_density'],
+  scales: ['linear', 'logarithmic'],
   // Array of countries and their meta data from api
   countries_raw: null,
   // ISO 3 letter code
@@ -14,9 +16,12 @@ export default function reducer(state={
   geojson: null,
   // Options include population, population density
   colorBy: 'population',
-  scaleColorBy: 'logarithmic',
+  scaleColorBy: 'linear',
   fetching: false,
   fetched: false,
+
+  geoChart_data: {population: {}, pop_density: {}},
+  // An object with keys: 'linear' and 'logarithmic'
   layer_population: null,
   layer_pop_density: null,
   layer_population_old: null,
@@ -37,38 +42,32 @@ export default function reducer(state={
     case 'COUNTRIES_FETCHED':
       // json list of countries with population available
       var countries_raw = action.payload.data.countries;
-      var countries = process_countries(
-        action,
+      var geoChart_data = geochart_data(
         countries_raw,
-        state.colorBy
+        state.dimensions,
+        state.scales
       );
       return {
         ...state,
         countries_raw: countries_raw,
-        countries: countries
+        geoChart_data: geoChart_data
       }
       break;
-    case 'RECOLOR_MAP':
+    case 'RECOLOR_GEOCHART':
       // Process countries for color on Google geoChart
-      countries = process_countries(
-        action,
-        state.countries_raw,
-        action.payload.colorByValue
-      );
       return {
         ...state,
         layer_population_old: state.layer_population,
         layer_pop_density_old: state.layer_pop_density,
-        countries: countries,
         colorBy: action.payload.colorByValue
       }
       break;
-      case 'RESCALE_COLOR_MAP':
+      case 'RESCALE_GEOCHART_COLOR':
         return {
           ...state,
           layer_population_old: state.layer_population,
           layer_pop_density_old: state.layer_pop_density,
-          scaleColorBy: action.payload.scaleColorByValue
+          scaleColorBy: action.payload.scaleColorBy
         }
         break;
     case 'COUNTRY_FETCHED':
@@ -109,14 +108,14 @@ function get_max(geojson, kind) {
   });
   return max;
 }
-
-function get_strength(feature, high, colorBy, scaleColorBy) {
-  var pop = feature.properties[colorBy];
+// fraction is for 0..1, for leaflet opacity
+function get_strength(val, high, colorBy, scaleColorBy, fraction) {
+  // console.log(colorBy, scaleColorBy, val, high)
   if (scaleColorBy.match(/linear/)) {
-    return pop/high;
+    return fraction ? (val / high) : val;
   } else {
     var log = high/4;
-    return pop >= log ? (pop/high) : (pop/log)
+    return val >= log ? (val/high) : (val/log)
   }
 }
 
@@ -124,9 +123,9 @@ function create_layer(colorBy, geojson, scaleColorBy) {
   var high = get_max(geojson, colorBy);
   return L.geoJSON(geojson, {
     style: (f) => {
-      var strength = get_strength(f, high, colorBy, scaleColorBy)
+      var strength = get_strength(f.properties[colorBy], high, colorBy, scaleColorBy, true)
       return {
-        fillColor: 'blue',
+        fillColor: 'red',
         color: 'black',
         weight: 0.1,
         dashArray: '3',
@@ -143,24 +142,52 @@ function get_total(geojson, kind) {
   }, 0)
 }
 
-// Process countries for color on Google geoChart
-function process_countries(action, countries_raw, colorBy) {
-  // countries_raw is raw json from api /population
-  var countries = Object.keys(countries_raw).reduce((ary, c) => {
-              // Singapore's pop density too high, ignore it altogether.
-              if (c!=='sgp') {
-                ary.push([
-                  codeCountryIndex[c],
-                  colorByValue(action, countries_raw, c, colorBy)
-                ])
-              }
-            return ary;
-          }, []);
-          countries.unshift(['Country', colorBy]);
-  return countries;
+
+function get_maximum(countries_raw, dimension) {
+  var countries = Object.keys(countries_raw);
+  // console.log(countries.reduce((h,c) => {
+  //    h[c] = parse_attribute(countries_raw, c, dimension)
+  //    return h
+  // }, {}))
+  var max = countries.map(c => {
+    if (c === 'sgp') {
+      return 0;
+    }
+    return parse_attribute(countries_raw, c, dimension)
+  }).sort((a, b) => {
+    return b - a;
+  })[0]
+    console.log(dimension, max)
+  return max
 }
 
-function parse_attribute(action, countries_raw, country, kind) {
+// Process countries for color on Google geoChart
+function geochart_data(countries_raw, dimensions, scales) {
+  // countries_raw is raw json from api /population
+  // {population: 1806646877, pop_density: 19970, sq_km: 3622477}
+  return dimensions.reduce((h, d) => {
+    h[d] = {};
+    var maximum = get_maximum(countries_raw, d);
+    scales.forEach(s => {
+      var countries = Object.keys(countries_raw).reduce((ary, c) => {
+          // Singapore's pop density too high, ignore it altogether.
+          if (c!=='sgp') {
+            ary.push([
+              codeCountryIndex[c],
+              colorByValue(countries_raw, c, d, s, maximum)
+            ])
+          }
+        return ary;
+      }, []);
+      countries.unshift(['Country', d]);
+      h[d][s] = countries;
+    })
+    return h
+  }, {})
+}
+
+function parse_attribute(countries_raw, country, kind) {
+  // kind is population or pop_density
   return parseInt(
     countries_raw[country][
       Object.keys(
@@ -169,20 +196,12 @@ function parse_attribute(action, countries_raw, country, kind) {
     );
 }
 
-function colorByValue(action, countries_raw, country, colorBy) {
-  var area = parse_attribute(action, countries_raw, country, 'sq_km');
-  var population = parse_attribute(action, countries_raw, country, 'population')
-  switch(colorBy) {
-    case 'population':
-      return population;
-      break;
-    case 'pop_density':
-      return population/area;
-      break;
-    default:
-      return population;
-  }
+function colorByValue(countries_raw, country, dimension, scale, high) {
+  var value = parse_attribute(countries_raw, country, dimension);
+  var val_strength = get_strength(value, high, dimension, scale);
+  return val_strength
 }
+
 
 function determine_admin_level(country_iso, state) {
   var primary_raster = Object.keys(state.countries_raw[country_iso])[0];
