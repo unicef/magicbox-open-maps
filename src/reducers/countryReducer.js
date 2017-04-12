@@ -60,10 +60,12 @@ export default function reducer(state={
       break;
     case 'RECOLOR_GEOCHART':
       // Process countries for color on Google geoChart
+      var layer_population_old = state.layers ? state.layers[state.unit]['population'][state.colorScaleBy] : null;
+      var layer_pop_density_old = state.layers ? state.layers[state.unit]['pop_density'][state.colorScaleBy] : null;
       return {
         ...state,
-        layer_population_old: state.layers[state.unit]['population'][state.colorScaleBy],
-        layer_pop_density_old: state.layers[state.unit]['pop_density'][state.colorScaleBy],
+        layer_population_old: layer_population_old,
+        layer_pop_density_old: layer_pop_density_old,
         colorBy: action.payload.colorByValue
       }
       break;
@@ -77,10 +79,12 @@ export default function reducer(state={
         }
         break;
       case 'RESCALE_GEOCHART_COLOR':
+        var layer_population_old = state.layers ? state.layers[state.unit]['population'][state.colorScaleBy] : null;
+        var layer_pop_density_old = state.layers ? state.layers[state.unit]['pop_density'][state.colorScaleBy] : null;
         return {
           ...state,
-          layer_population_old: state.layers[state.unit]['population'][state.colorScaleBy],
-          layer_pop_density_old: state.layers[state.unit]['pop_density'][state.colorScaleBy],
+          layer_population_old: layer_population_old,
+          layer_pop_density_old: layer_pop_density_old,
           scaleColorBy: action.payload.scaleColorBy
         }
         break;
