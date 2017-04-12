@@ -29,13 +29,13 @@ class ColorByRadioGroup extends Component {
     })
     this.props.dispatch(updateUnit(e.target.value));
   }
-
   render() {
     var colorBy = this.props.country.colorBy;
     var unit = this.props.country.unit;
     var side_style = this.props.side_style;
     var style = {width:'250px'}
     return  <div >
+      aa
       <Grid style={style}>
         <Row className="show-grid">
           <Col xs={12} md={6}><input type="radio" checked={colorBy === "population"} onChange={this.setColorBy} value="population" /> population</Col>
