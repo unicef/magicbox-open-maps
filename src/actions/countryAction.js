@@ -73,10 +73,10 @@ export function fetchCountry(country_name) {
   return function(dispatch) {
     console.log('About to fetch', country_code)
 
-    var geojson = topo_2_geo(require('../utils/sample_country_json'));
-    console.log(geojson)
+    // var geojson = topo_2_geo(require('../utils/sample_country_json'));
+    // console.log(geojson)
     // window.geojson just for debug in browser
-    window.geojson = geojson;
+    // window.geojson = geojson;
     // dispatch({
     //   type: 'COUNTRY_FETCHED',
     //   payload: {
@@ -84,7 +84,7 @@ export function fetchCountry(country_name) {
     //     geojson: geojson
     //   }
     // })
-    
+
     axios.get(api_url + 'population/topojson/' + country_code)
     .then(response => {
       console.log(country_name, 'Fetched!')
