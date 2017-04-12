@@ -62,8 +62,8 @@ export default function reducer(state={
       // Process countries for color on Google geoChart
       return {
         ...state,
-        layer_population_old: state.layers[state.unit][state.colorBy][state.colorScaleBy],
-        layer_pop_density_old: state.layers[state.unit][state.colorBy][state.colorScaleBy],
+        layer_population_old: state.layers[state.unit]['population'][state.colorScaleBy],
+        layer_pop_density_old: state.layers[state.unit]['pop_density'][state.colorScaleBy],
         colorBy: action.payload.colorByValue
       }
       break;
@@ -79,8 +79,8 @@ export default function reducer(state={
       case 'RESCALE_GEOCHART_COLOR':
         return {
           ...state,
-          layer_population_old: state.layers[state.unit][state.colorBy][state.colorScaleBy],
-          layer_pop_density_old: state.layers[state.unit][state.colorBy][state.colorScaleBy],
+          layer_population_old: state.layers[state.unit]['population'][state.colorScaleBy],
+          layer_pop_density_old: state.layers[state.unit]['pop_density'][state.colorScaleBy],
           scaleColorBy: action.payload.scaleColorBy
         }
         break;
