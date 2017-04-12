@@ -97,7 +97,7 @@ class MyMap extends React.Component {
     var scaleColorBy = this.props.country.scaleColorBy;
     var colorBy = this.props.country.colorBy;
     var unit = this.props.country.unit;
-
+    var grid_style = {width:'250px', textAlign: 'left'}
     var shape_loaded = {
       display: !!geojson ? 'inline' : 'none',
       fontSize: '14px',
@@ -122,12 +122,17 @@ class MyMap extends React.Component {
       <div id='floating-panel'>
         <ColorByRadioGroup country={this.props.country} side_style={side_style}/>
         <hr/>
-          <p style={side_style}>
-            <input type='radio' checked={scaleColorBy === "linear"} onChange={this.setScaleColorBy} value="linear" /> linear
-          </p>
-          <p style={side_style}>
-            <input type='radio' checked={scaleColorBy === "logarithmic"} onChange={this.setScaleColorBy} value='logarithmic'  /> logarithmic
-          </p>
+          <Grid style={grid_style}>
+            <Row className="show-grid">
+              <Col xs={12} md={6}>
+                <input type='radio' checked={scaleColorBy === "linear"} onChange={this.setScaleColorBy} value="linear" /> linear
+              </Col>
+              <Col xs={12} md={6}>
+                <input type='radio' checked={scaleColorBy === "logarithmic"} onChange={this.setScaleColorBy} value='logarithmic'  /> logarithmic
+              </Col>
+            </Row>
+          </Grid>
+
         <hr/>
         <div style={shape_loaded}>
           <p style={side_style}>
