@@ -84,6 +84,7 @@ export function fetchCountry(country_name) {
     //     geojson: geojson
     //   }
     // })
+    
     axios.get(api_url + 'population/topojson/' + country_code)
     .then(response => {
       console.log(country_name, 'Fetched!')
