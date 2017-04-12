@@ -5,6 +5,9 @@ import { recordZoom } from '../actions/mapAction';
 import { setPanLocation } from '../actions/mapAction';
 import ColorByRadioGroup from './colorByRadioGroup';
 import L from 'leaflet';
+import { Grid } from 'react-bootstrap';
+import { Row } from 'react-bootstrap';
+import { Col } from 'react-bootstrap';
 var FileSaver = require('file-saver');
 
 require('../css/overlay-controls-box.css');
@@ -19,17 +22,26 @@ function remove_layer(layer) {
 }
 
 function remove_layers(country) {
-  var kinds = ['layer_population_old', 'layer_pop_density_old'];
+  var units = ['aegypti', 'human']
+  var dimensions = ['population', 'pop_density'];
   var scales = ['linear', 'logarithmic'];
-  kinds.forEach(k => {
-    if (country[k]) {
+  units.forEach(u => {
+    dimensions.forEach(d => {
       scales.forEach(s => {
-        var layer = country[k][s];
-        // console.log(k, s, country[k][s])
+        var layer = country.layers[u][d][s];
         remove_layer(layer);
       })
-    }
+    })
   })
+  // kinds.forEach(k => {
+  //   if (country[k]) {
+  //     scales.forEach(s => {
+  //       var layer = country[k][s];
+  //       // console.log(k, s, country[k][s])
+  //       remove_layer(layer);
+  //     })
+  //   }
+  // })
   // return map;
 }
 
@@ -78,11 +90,13 @@ class MyMap extends React.Component {
 
   render() {
     var side_style = this.props.side_style;
+    var dimension_style = Object.assign({display:'inline'}, side_style);
     var map_center = this.props.map.latLng;
     var zoom_level = this.props.map.zoom_level;
     var geojson = this.props.country.geojson;
     var scaleColorBy = this.props.country.scaleColorBy;
     var colorBy = this.props.country.colorBy;
+    var unit = this.props.country.unit;
 
     var shape_loaded = {
       display: !!geojson ? 'inline' : 'none',
@@ -93,26 +107,27 @@ class MyMap extends React.Component {
       window.map.on('dragend', this.setMapCenter);
       window.map.on('zoomend', this.setZoomLevel);
 
-      if (this.props.country.layer_population) {
+      if (this.props.country.layers) {
         remove_layers(this.props.country);
         window.map.setView(map_center, zoom_level)
-        if (colorBy.match(/population/)) {
-          this.props.country.layer_population[scaleColorBy].addTo(window.map);
-        } else {
-          this.props.country.layer_pop_density[scaleColorBy].addTo(window.map);
-        }
+        this.props.country.layers[unit][colorBy][scaleColorBy].addTo(window.map);
+        // if (colorBy.match(/population/)) {
+        //   this.props.country.layer_population[scaleColorBy].addTo(window.map);
+        // } else {
+        //   this.props.country.layer_pop_density[scaleColorBy].addTo(window.map);
+        // }
       }
     }
     return <div >
       <div id='floating-panel'>
-        <ColorByRadioGroup country={this.props.country} side_style={this.props.side_style}/>
+        <ColorByRadioGroup country={this.props.country} side_style={side_style}/>
         <hr/>
-        <p style={side_style}>
-          <input type='radio' checked={scaleColorBy === "linear"} onChange={this.setScaleColorBy} value="linear" /> linear
-        </p>
-        <p style={side_style}>
-          <input type='radio' checked={scaleColorBy === "logarithmic"} onChange={this.setScaleColorBy} value='logarithmic'  /> logarithmic
-        </p>
+          <p style={side_style}>
+            <input type='radio' checked={scaleColorBy === "linear"} onChange={this.setScaleColorBy} value="linear" /> linear
+          </p>
+          <p style={side_style}>
+            <input type='radio' checked={scaleColorBy === "logarithmic"} onChange={this.setScaleColorBy} value='logarithmic'  /> logarithmic
+          </p>
         <hr/>
         <div style={shape_loaded}>
           <p style={side_style}>

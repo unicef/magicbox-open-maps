@@ -3,11 +3,16 @@ var country_codes = require('../utils/country_codes')
 var country_centroids = require('../utils/country_centroid')
 var api_url = config.api_url;
 var topojson = require('topojson');
+var sample_json = require('../utils/sample_json');
 
 import axios from 'axios';
 
 export function fetchCountries() {
   return function(dispatch) {
+      // dispatch({
+      //   type: 'COUNTRIES_FETCHED',
+      //   payload: {data: sample_json}
+      // })
     axios.get(api_url + 'population')
     .then(response => {
       dispatch({
@@ -29,6 +34,16 @@ export function recolorCountries(colorByValue) {
   }
 }
 
+export function updateUnit(unit) {
+  return function(dispatch) {
+    dispatch({
+      type: 'UPDATE_UNIT',
+      payload: {
+        unit: unit,
+      }
+    })
+  }
+}
 export function rescaleColorCountries(scaleColorByValue) {
   return function(dispatch) {
     dispatch({
@@ -57,20 +72,34 @@ export function fetchCountry(country_name) {
   var country_code = country_codes[country_name];
   return function(dispatch) {
     console.log('About to fetch', country_code)
-    axios.get(api_url + 'population/topojson/' + country_code)
-    .then(response => {
-      console.log(country_name, 'Fetched!')
-      var geojson = topo_2_geo(response.data);
-      // window.geojson just for debug in browser
-      window.geojson = geojson;
-      dispatch({
-        type: 'COUNTRY_FETCHED',
-        payload: {
-          country: country_code,
-          geojson: geojson
-        }
-      })
+
+    var geojson = topo_2_geo(require('../utils/sample_country_json'));
+    console.log(geojson)
+    // window.geojson just for debug in browser
+    window.geojson = geojson;
+    dispatch({
+      type: 'COUNTRY_FETCHED',
+      payload: {
+        country: country_code,
+        geojson: geojson
+      }
     })
+
+
+    // axios.get(api_url + 'population/topojson/' + country_code)
+    // .then(response => {
+    //   console.log(country_name, 'Fetched!')
+    //   var geojson = topo_2_geo(response.data);
+    //   // window.geojson just for debug in browser
+    //   window.geojson = geojson;
+    //   dispatch({
+    //     type: 'COUNTRY_FETCHED',
+    //     payload: {
+    //       country: country_code,
+    //       geojson: geojson
+    //     }
+    //   })
+    // })
   }
 }
 

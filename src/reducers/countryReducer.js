@@ -8,6 +8,8 @@ export default function reducer(state={
   countries: [['country']],
   dimensions: ['population', 'pop_density'],
   scales: ['linear', 'logarithmic'],
+  units: ['human', 'aegypti'],
+  unit: 'aegypti',
   // Array of countries and their meta data from api
   countries_raw: null,
   // ISO 3 letter code
@@ -20,10 +22,12 @@ export default function reducer(state={
   fetching: false,
   fetched: false,
 
-  geoChart_data: {population: {}, pop_density: {}},
+  geoChart_data: {human: {}, aegypti: {}},
   // An object with keys: 'linear' and 'logarithmic'
-  layer_population: null,
-  layer_pop_density: null,
+  // layer_population: null,
+  // layer_pop_density: null,
+  layers: null,
+  // For removing layers
   layer_population_old: null,
   layer_pop_density_old: null,
   error: null,
@@ -44,6 +48,7 @@ export default function reducer(state={
       var countries_raw = action.payload.data.countries;
       var geoChart_data = geochart_data(
         countries_raw,
+        state.units,
         state.dimensions,
         state.scales
       );
@@ -57,16 +62,25 @@ export default function reducer(state={
       // Process countries for color on Google geoChart
       return {
         ...state,
-        layer_population_old: state.layer_population,
-        layer_pop_density_old: state.layer_pop_density,
+        layer_population_old: state.layers[state.unit][state.colorBy][state.colorScaleBy],
+        layer_pop_density_old: state.layers[state.unit][state.colorBy][state.colorScaleBy],
         colorBy: action.payload.colorByValue
       }
       break;
+      case 'UPDATE_UNIT':
+        // Process countries for color on Google geoChart
+        return {
+          ...state,
+          // layer_population_old: state.layer_population,
+          // layer_pop_density_old: state.layer_pop_density,
+          unit: action.payload.unit
+        }
+        break;
       case 'RESCALE_GEOCHART_COLOR':
         return {
           ...state,
-          layer_population_old: state.layer_population,
-          layer_pop_density_old: state.layer_pop_density,
+          layer_population_old: state.layers[state.unit][state.colorBy][state.colorScaleBy],
+          layer_pop_density_old: state.layers[state.unit][state.colorBy][state.colorScaleBy],
           scaleColorBy: action.payload.scaleColorBy
         }
         break;
@@ -76,6 +90,17 @@ export default function reducer(state={
       var geojson = action.payload.geojson;
       // var blob = new Blob([JSON.stringify(geojson)], {type: "data:text/json;charset=utf-8"});
       // FileSaver.saveAs(blob, 'aaa' + '.json');
+      var layers = state.units.reduce((h, u) => {
+        h[u] = {};
+        state.dimensions.forEach(d => {
+          h[u][d] = {};
+          state.scales.forEach(s => {
+            h[u][d][s] = create_layer(u, d, s, geojson)
+          })
+        })
+        return h;
+      }, {})
+
       return {
         ...state,
         // admin_level: action.payload.admin_level,
@@ -83,14 +108,15 @@ export default function reducer(state={
         geojson: geojson,
         layer_population_old: state.layer_population,
         layer_pop_density_old: state.layer_pop_density,
-        layer_population: {
-          linear: create_layer('population', geojson, 'linear'),
-          logarithmic: create_layer('population', geojson, 'logarithmic')
-        },
-        layer_pop_density:{
-          linear: create_layer('pop_density', geojson, 'linear'),
-          logarithmic: create_layer('pop_density', geojson, 'logarithmic')
-        },
+        layers: layers,
+        // layer_population: {
+        //   linear: create_layer('population', geojson, 'linear'),
+        //   logarithmic: create_layer('population', geojson, 'logarithmic')
+        // },
+        // layer_pop_density:{
+        //   linear: create_layer('pop_density', geojson, 'linear'),
+        //   logarithmic: create_layer('pop_density', geojson, 'logarithmic')
+        // },
         area: get_total(geojson, 'sq_km')
       };
       break;
@@ -99,18 +125,18 @@ export default function reducer(state={
   }
 }
 
-function get_max(geojson, kind) {
+function get_max(geojson, unit, dimension) {
   var max;
   geojson.features.forEach(f => {
-    var value = f.properties[kind];
+    var value = f.properties.population[unit][dimension];
     max = max ? (value > max ? value : max) : value;
     // min = min ? (value < min ? value : min) : value;
   });
+  console.log(max)
   return max;
 }
 // fraction is for 0..1, for leaflet opacity
 function get_strength(val, high, colorBy, scaleColorBy, fraction) {
-  // console.log(colorBy, scaleColorBy, val, high)
   if (scaleColorBy.match(/linear/)) {
     return fraction ? (val / high) : val;
   } else {
@@ -119,11 +145,11 @@ function get_strength(val, high, colorBy, scaleColorBy, fraction) {
   }
 }
 
-function create_layer(colorBy, geojson, scaleColorBy) {
-  var high = get_max(geojson, colorBy);
+function create_layer(unit, dimension, scale, geojson) {
+  var high = get_max(geojson, unit, dimension);
   return L.geoJSON(geojson, {
     style: (f) => {
-      var strength = get_strength(f.properties[colorBy], high, colorBy, scaleColorBy, true)
+      var strength = get_strength(f.properties.population[unit][dimension], high, dimension, scale, true)
       return {
         fillColor: 'red',
         color: 'black',
@@ -136,68 +162,79 @@ function create_layer(colorBy, geojson, scaleColorBy) {
   })
 }
 
+// Need to update this right later.
 function get_total(geojson, kind) {
   return geojson.features.reduce((sum, f) => {
-    return sum + f.properties[kind];
+    return sum + f.properties.population.aegypti[kind];
   }, 0)
 }
 
 
-function get_maximum(countries_raw, dimension) {
+function get_maximum(countries_raw, unit, dimension) {
   var countries = Object.keys(countries_raw);
   // console.log(countries.reduce((h,c) => {
   //    h[c] = parse_attribute(countries_raw, c, dimension)
   //    return h
   // }, {}))
   var max = countries.map(c => {
-    if (c === 'sgp') {
+    if (c === 'sgp' || !countries_raw[c][unit]) {
       return 0;
     }
-    return parse_attribute(countries_raw, c, dimension)
+
+    return parse_attribute(countries_raw, c, unit, dimension)
   }).sort((a, b) => {
     return b - a;
   })[0]
-    console.log(dimension, max)
+
   return max
 }
 
 // Process countries for color on Google geoChart
-function geochart_data(countries_raw, dimensions, scales) {
+// units: human, aegypti
+function geochart_data(countries_raw, units, dimensions, scales) {
   // countries_raw is raw json from api /population
   // {population: 1806646877, pop_density: 19970, sq_km: 3622477}
-  return dimensions.reduce((h, d) => {
-    h[d] = {};
-    var maximum = get_maximum(countries_raw, d);
-    scales.forEach(s => {
-      var countries = Object.keys(countries_raw).reduce((ary, c) => {
-          // Singapore's pop density too high, ignore it altogether.
-          if (c!=='sgp') {
-            ary.push([
-              codeCountryIndex[c],
-              colorByValue(countries_raw, c, d, s, maximum)
-            ])
-          }
-        return ary;
-      }, []);
-      countries.unshift(['Country', d]);
-      h[d][s] = countries;
-    })
-    return h
-  }, {})
+  return units.reduce((h_u, u) => {
+    // hash_unit['human']
+    h_u[u] = dimensions.reduce((h, d) => {
+      var maximum = get_maximum(countries_raw, u, d);
+      h[d] = {};
+      scales.forEach(s => {
+        var countries = Object.keys(countries_raw).reduce((ary, c) => {
+            // Singapore's pop density too high, ignore it altogether.
+            if (c!=='sgp' && countries_raw[c][u]) {
+              ary.push([
+                codeCountryIndex[c],
+                colorByValue(countries_raw, c, u, d, s, maximum)
+              ])
+            }
+          return ary;
+        }, []);
+        countries.unshift(['Country', d]);
+        h[d][s] = countries;
+      })
+      return h
+    }, {})
+    return h_u;
+  }, {});
 }
 
-function parse_attribute(countries_raw, country, kind) {
+function parse_attribute(countries_raw, country, unit, dimension) {
   // kind is population or pop_density
-  return parseInt(
-    countries_raw[country][
-      Object.keys(
-        countries_raw[country]
-      )[0]][0][kind], 10
-    );
+  // return parseInt(
+  //   countries_raw[country][unit][0][dimension], 10
+  //   );
+    return Math.ceil(countries_raw[country][unit][0][dimension] * 100) / 100;
+  // return parseInt(
+  //   countries_raw[country][
+  //     Object.keys(
+  //       countries_raw[country]
+  //     )[0]][0][dimension], 10
+  //   );
 }
 
-function colorByValue(countries_raw, country, dimension, scale, high) {
-  var value = parse_attribute(countries_raw, country, dimension);
+function colorByValue(countries_raw, country, unit, dimension, scale, high) {
+  var value = parse_attribute(countries_raw, country, unit, dimension);
   var val_strength = get_strength(value, high, dimension, scale);
   return val_strength
 }
