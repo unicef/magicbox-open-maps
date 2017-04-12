@@ -9,7 +9,7 @@ export default function reducer(state={
   dimensions: ['population', 'pop_density'],
   scales: ['linear', 'logarithmic'],
   units: ['human', 'aegypti'],
-  unit: 'aegypti',
+  unit: 'human',
   // Array of countries and their meta data from api
   countries_raw: null,
   // ISO 3 letter code

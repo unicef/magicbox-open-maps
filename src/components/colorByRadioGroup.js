@@ -37,15 +37,15 @@ class ColorByRadioGroup extends Component {
     return  <div >
       <Grid style={style}>
         <Row className="show-grid">
-          <Col xs={12} md={6}><input type="radio" checked={colorBy === "population"} onChange={this.setColorBy} value="population" /> population</Col>
-          <Col xs={12} md={6}><input type="radio" checked={colorBy === "pop_density"} onChange={this.setColorBy} value="pop_density"  /> pop density</Col>
+          <Col xs={12} md={6}><input type="radio" checked={unit === "human"} onChange={this.updateUnit} value="human" /> human</Col>
+          <Col xs={12} md={6}><input type="radio" checked={unit === "aegypti"} onChange={this.updateUnit} value="aegypti"  /> aegypti</Col>
         </Row>
       </Grid>
       <hr />
       <Grid style={style}>
         <Row className="show-grid">
-          <Col xs={12} md={6}><input type="radio" checked={unit === "human"} onChange={this.updateUnit} value="human" /> human</Col>
-          <Col xs={12} md={6}><input type="radio" checked={unit === "aegypti"} onChange={this.updateUnit} value="aegypti"  /> aegypti</Col>
+          <Col xs={12} md={6}><input type="radio" checked={colorBy === "population"} onChange={this.setColorBy} value="population" /> population</Col>
+          <Col xs={12} md={6}><input type="radio" checked={colorBy === "pop_density"} onChange={this.setColorBy} value="pop_density"  /> pop density</Col>
         </Row>
       </Grid>
     </div>;
