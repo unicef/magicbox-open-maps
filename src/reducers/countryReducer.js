@@ -228,7 +228,7 @@ function parse_attribute(countries_raw, country, unit, dimension) {
   // return parseInt(
   //   countries_raw[country][unit][0][dimension], 10
   //   );
-    return Math.ceil(countries_raw[country][unit][0][dimension] * 100) / 100;
+    return Math.ceil(countries_raw[country][unit][0][dimension] * 10000) / 10000;
   // return parseInt(
   //   countries_raw[country][
   //     Object.keys(
