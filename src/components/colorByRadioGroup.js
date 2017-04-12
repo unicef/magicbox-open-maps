@@ -33,7 +33,7 @@ class ColorByRadioGroup extends Component {
     var colorBy = this.props.country.colorBy;
     var unit = this.props.country.unit;
     var side_style = this.props.side_style;
-    var style = {width:'250px'}
+    var style = {width:'250px', textAlign: 'left'}
     return  <div >
       <Grid style={style}>
         <Row className="show-grid">
@@ -44,14 +44,8 @@ class ColorByRadioGroup extends Component {
       <hr />
       <Grid style={style}>
         <Row className="show-grid">
-          <Col xs={12} md={6}>
-            <p style={side_style}>
-                <input type="radio" checked={unit === "human"} onChange={this.updateUnit} value="human" /> human
-            </p>
-            <p style={side_style}>
-                <input type="radio" checked={unit === "aegypti"} onChange={this.updateUnit} value="aegypti"  /> aegypti
-            </p>
-          </Col>
+          <Col xs={12} md={6}><input type="radio" checked={unit === "human"} onChange={this.updateUnit} value="human" /> human</Col>
+          <Col xs={12} md={6}><input type="radio" checked={unit === "aegypti"} onChange={this.updateUnit} value="aegypti"  /> aegypti</Col>
         </Row>
       </Grid>
     </div>;
