@@ -77,29 +77,29 @@ export function fetchCountry(country_name) {
     console.log(geojson)
     // window.geojson just for debug in browser
     window.geojson = geojson;
-    dispatch({
-      type: 'COUNTRY_FETCHED',
-      payload: {
-        country: country_code,
-        geojson: geojson
-      }
-    })
-
-
-    // axios.get(api_url + 'population/topojson/' + country_code)
-    // .then(response => {
-    //   console.log(country_name, 'Fetched!')
-    //   var geojson = topo_2_geo(response.data);
-    //   // window.geojson just for debug in browser
-    //   window.geojson = geojson;
-    //   dispatch({
-    //     type: 'COUNTRY_FETCHED',
-    //     payload: {
-    //       country: country_code,
-    //       geojson: geojson
-    //     }
-    //   })
+    // dispatch({
+    //   type: 'COUNTRY_FETCHED',
+    //   payload: {
+    //     country: country_code,
+    //     geojson: geojson
+    //   }
     // })
+
+
+    axios.get(api_url + 'population/topojson/' + country_code)
+    .then(response => {
+      console.log(country_name, 'Fetched!')
+      var geojson = topo_2_geo(response.data);
+      // window.geojson just for debug in browser
+      window.geojson = geojson;
+      dispatch({
+        type: 'COUNTRY_FETCHED',
+        payload: {
+          country: country_code,
+          geojson: geojson
+        }
+      })
+    })
   }
 }
 
