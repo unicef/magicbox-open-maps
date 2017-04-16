@@ -14,7 +14,6 @@ require('../css/overlay-controls-box.css');
 
 function remove_layer(layer) {
   if (layer) {
-
     if (window.map.hasLayer(layer)) {
       window.map.removeLayer(layer)
     }
@@ -23,26 +22,21 @@ function remove_layer(layer) {
 
 function remove_layers(country) {
   var units = ['aegypti', 'human']
-  var dimensions = ['population', 'pop_density'];
+  var enrichments = ['population', 'pop_density', 'prevalence', 'prev_density'];
   var scales = ['linear', 'logarithmic'];
   units.forEach(u => {
-    dimensions.forEach(d => {
+    enrichments.forEach(e => {
       scales.forEach(s => {
-        var layer = country.layers[u][d][s];
+        var layer = country.layers[u + '-' + e + '-' + s];
         remove_layer(layer);
       })
     })
   })
-  // kinds.forEach(k => {
-  //   if (country[k]) {
-  //     scales.forEach(s => {
-  //       var layer = country[k][s];
-  //       // console.log(k, s, country[k][s])
-  //       remove_layer(layer);
-  //     })
-  //   }
-  // })
-  // return map;
+  Object.keys(country.old_layers).forEach(k => {
+    remove_layer(country.old_layers[k]);
+  })
+  // remove_layer(country.layer_population_old);
+  // remove_layer(country.layer_pop_density_old);
 }
 
 class MyMap extends React.Component {
@@ -53,15 +47,15 @@ class MyMap extends React.Component {
       //  colorBy: this.props.country.colorBy,
       //  scaleColorBy: this.props.country.scaleColorBy,
      }
-     this.setScaleColorBy = this.setScaleColorBy.bind(this)
+     this.setScale = this.setScale.bind(this)
      this.setZoomLevel = this.setZoomLevel.bind(this)
      this.setMapCenter = this.setMapCenter.bind(this)
      this.download_geojson = this.download_geojson.bind(this)
   }
 
-  setScaleColorBy(e) {
+  setScale(e) {
     this.setState({
-      scaleColorBy: e.target.value
+      scale: e.target.value
     })
     this.props.dispatch(rescaleColorCountries(e.target.value));
   }
@@ -94,8 +88,9 @@ class MyMap extends React.Component {
     var map_center = this.props.map.latLng;
     var zoom_level = this.props.map.zoom_level;
     var geojson = this.props.country.geojson;
-    var scaleColorBy = this.props.country.scaleColorBy;
+    var scale = this.props.country.scale;
     var colorBy = this.props.country.colorBy;
+    var enrichment = this.props.country.enrichment;
     var unit = this.props.country.unit;
     var grid_style = {width:'250px', textAlign: 'left'}
     var shape_loaded = {
@@ -108,9 +103,11 @@ class MyMap extends React.Component {
       window.map.on('zoomend', this.setZoomLevel);
 
       if (this.props.country.layers) {
+        window.z = this.props.country;
+
         remove_layers(this.props.country);
         window.map.setView(map_center, zoom_level)
-        this.props.country.layers[unit][colorBy][scaleColorBy].addTo(window.map);
+        this.props.country.layers[unit + '-' + enrichment + '-' + scale].addTo(window.map);
         // if (colorBy.match(/population/)) {
         //   this.props.country.layer_population[scaleColorBy].addTo(window.map);
         // } else {
@@ -125,10 +122,10 @@ class MyMap extends React.Component {
           <Grid style={grid_style}>
             <Row className="show-grid">
               <Col xs={12} md={6}>
-                <input type='radio' checked={scaleColorBy === "linear"} onChange={this.setScaleColorBy} value="linear" /> linear
+                <input type='radio' checked={scale === "linear"} onChange={this.setScale} value="linear" /> linear
               </Col>
               <Col xs={12} md={6}>
-                <input type='radio' checked={scaleColorBy === "logarithmic"} onChange={this.setScaleColorBy} value='logarithmic'  /> logarithmic
+                <input type='radio' checked={scale === "logarithmic"} onChange={this.setScale} value='logarithmic'  /> logarithmic
               </Col>
             </Row>
           </Grid>

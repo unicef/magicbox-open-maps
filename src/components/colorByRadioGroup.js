@@ -13,13 +13,13 @@ class ColorByRadioGroup extends Component {
        colorBy: this.props.country.colorBy,
        unit: this.props.country.unit,
      }
-     this.setColorBy = this.setColorBy.bind(this)
+     this.setEnrichment = this.setEnrichment.bind(this)
      this.updateUnit = this.updateUnit.bind(this)
   }
 
-  setColorBy(e) {
+  setEnrichment(e) {
     this.setState({
-      colorBy: e.target.value
+      enrichment: e.target.value,
     })
     this.props.dispatch(recolorCountries(e.target.value));
   }
@@ -30,22 +30,47 @@ class ColorByRadioGroup extends Component {
     this.props.dispatch(updateUnit(e.target.value));
   }
   render() {
-    var colorBy = this.props.country.colorBy;
+
+    function is_visible(country, countries, kind) {
+      if (!country) {
+        return 'inline';
+      }
+      return countries[country][kind] ? 'inline' : 'none';
+    }
+
+    var country = this.props.country.country;
+    var countries_raw = this.props.country.countries_raw;
+    var enrichment = this.props.country.enrichment;
     var unit = this.props.country.unit;
     var side_style = this.props.side_style;
     var style = {width:'250px', textAlign: 'left'}
+
+
+    var visible_human = is_visible(country, countries_raw, 'human');
+    var visible_population = (unit === 'human') ? 'inline' : 'none';
+    var visible_prevalence = unit !== 'human' ? 'inline' : 'none';
+
+    var style_human = {display: visible_human};
+    var style_population = {...style, display: visible_population};
+    var style_prevalence = {...style, display: visible_prevalence};
+    var no_display = {display: 'none'};
+
     return  <div >
       <Grid style={style}>
         <Row className="show-grid">
-          <Col xs={12} md={6}><input type="radio" checked={unit === "human"} onChange={this.updateUnit} value="human" /> human</Col>
+          <Col xs={12} md={6} ><span style={style_human}><input type="radio" checked={unit === "human"} onChange={this.updateUnit} value="human" /> human</span></Col>
           <Col xs={12} md={6}><input type="radio" checked={unit === "aegypti"} onChange={this.updateUnit} value="aegypti"  /> aegypti</Col>
         </Row>
       </Grid>
       <hr />
       <Grid style={style}>
         <Row className="show-grid">
-          <Col xs={12} md={6}><input type="radio" checked={colorBy === "population"} onChange={this.setColorBy} value="population" /> population</Col>
-          <Col xs={12} md={6}><input type="radio" checked={colorBy === "pop_density"} onChange={this.setColorBy} value="pop_density"  /> pop density</Col>
+          <Col xs={12} md={6} style={style_population}><input type="radio" checked={enrichment === "population"} onChange={this.setEnrichment} value="population" /> population</Col>
+          <Col xs={12} md={6} style={style_population}><input type="radio" checked={enrichment === "pop_density"} onChange={this.setEnrichment} value="pop_density"  /> pop density</Col>
+        </Row>
+        <Row className="show-grid">
+          <Col xs={12} md={6} style={style_prevalence}><input type="radio" checked={enrichment === "prevalence"} onChange={this.setEnrichment} value="prevalence" /> prevalence</Col>
+          <Col xs={12} md={6} style={no_display}><input type="radio" checked={enrichment === "prev_density"} onChange={this.setEnrichment} value="prev_density"  />prev density</Col>
         </Row>
       </Grid>
     </div>;

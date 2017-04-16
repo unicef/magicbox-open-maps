@@ -23,12 +23,12 @@ export function fetchCountries() {
   }
 }
 
-export function recolorCountries(colorByValue) {
+export function recolorCountries(enrichment) {
   return function(dispatch) {
     dispatch({
-      type: 'RECOLOR_GEOCHART',
+      type: 'RECOLOR_MAPS',
       payload: {
-        colorByValue: colorByValue,
+        enrichment: enrichment,
       }
     })
   }
@@ -47,9 +47,9 @@ export function updateUnit(unit) {
 export function rescaleColorCountries(scaleColorByValue) {
   return function(dispatch) {
     dispatch({
-      type: 'RESCALE_GEOCHART_COLOR',
+      type: 'RESCALE_MAPS_COLOR',
       payload: {
-        scaleColorBy: scaleColorByValue,
+        scale: scaleColorByValue,
       }
     })
   }

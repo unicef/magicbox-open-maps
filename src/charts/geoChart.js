@@ -9,10 +9,8 @@ class GeoChart extends React.Component {
 
   onChange = Chart => {
     const selectedCountryIndex = Chart.chart.getSelection();
-    console.log(this.props.geoChart_data);
-    console.log("____")
     var country_name =
-      this.props.geoChart_data[this.props.unit][this.props.colorBy][this.props.scaleColorBy][
+      this.props.geoChart_data[this.props.unit][this.props.enrichment][this.props.scale][
         selectedCountryIndex[0].row + 1
       ][0]
     this.props.dispatch(displayCountry(country_name));
@@ -31,14 +29,15 @@ class GeoChart extends React.Component {
 
   render() {
     var countries = this.props.geoChart_data;
-    var dimension = this.props.colorBy;
-    var scale = this.props.scaleColorBy;
+    var enrichment = this.props.enrichment;
+    var scale = this.props.scale;
     var unit = this.props.unit;
     var data;
-    if (countries[unit][dimension]) {
-      data = countries[unit][dimension][scale]
+
+    if (countries[unit][enrichment]) {
+      data = countries[unit][enrichment][scale]
     } else {
-      [['Country', 'Popularity'], ['Germany', 200]]
+      data = [['Country', 'Popularity'], ['Germany', 200]]
     }
 
     return (
