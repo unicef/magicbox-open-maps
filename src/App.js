@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Loader from 'react-loader';
 import { connect } from 'react-redux';
 import { fetchCountries } from './actions/countryAction';
 import Geo from './charts/geoChart';
@@ -11,6 +12,7 @@ class App extends Component {
   componentWillMount() {
     this.props.dispatch(fetchCountries());
   }
+
   render() {
     var side_style = {
       textAlign: 'left',
@@ -23,6 +25,7 @@ class App extends Component {
     }
     return (
       <div className="App">
+         <Loader loaded={this.props.country.is_loaded}/>
           <Grid >
             <Row className="show-grid">
               <Col md={12}>

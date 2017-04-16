@@ -14,6 +14,7 @@ var dimension_lookup = {
 }
 export default function reducer(state={
   // Formatted for google geo-chart
+  is_loaded: false,
   countries: [['country']],
   dimensions: ['sum', 'density'],
   enrichments: ['population', 'prevalence', 'pop_density', 'prev_density'],
@@ -50,6 +51,7 @@ export default function reducer(state={
         admin_level: determine_admin_level(country, state),
         country: country,
         country_name: action.payload.country_name,
+        is_loaded: false
       }
     break;
     case 'COUNTRIES_FETCHED':
@@ -62,11 +64,12 @@ export default function reducer(state={
         state.scales,
         dimension_lookup,
       );
-      console.log(geoChart_data);
+
       return {
         ...state,
         countries_raw: countries_raw,
-        geoChart_data: geoChart_data
+        geoChart_data: geoChart_data,
+        is_loaded: true
       }
       break;
     case 'RECOLOR_MAPS':
@@ -120,6 +123,7 @@ export default function reducer(state={
         // layer_pop_density_old: set_old_layer('pop_density', state),
         old_layers: set_old_layers(state),
         layers: layers,
+        is_loaded: true,
         // layer_population: {
         //   linear: create_layer('population', geojson, 'linear'),
         //   logarithmic: create_layer('population', geojson, 'logarithmic')
