@@ -51,7 +51,11 @@ class ColorByRadioGroup extends Component {
     var countries_raw = this.props.country.countries_raw;
     var enrichment = this.props.country.enrichment;
     var unit = this.props.country.unit;
-    var style = {width:'250px', textAlign: 'left', fontSize:'16px'}
+    var style = {
+      width:'250px',
+      textAlign: 'left',
+      fontSize:'14px'
+    }
 
 
     var visible_human = is_visible(country, countries_raw, 'human');
