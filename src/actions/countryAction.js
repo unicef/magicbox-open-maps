@@ -14,6 +14,9 @@ export function fetchCountries() {
       //   payload: {data: sample_json}
       // })
     axios.get(api_url + 'population')
+    .catch(err => {
+      alert('There was an error to fetch the list of countries')
+    })
     .then(response => {
       dispatch({
         type: 'COUNTRIES_FETCHED',
@@ -86,6 +89,9 @@ export function fetchCountry(country_name) {
     // })
 
     axios.get(api_url + 'population/topojson/' + country_code)
+    .catch(err => {
+      alert('There was an error trying to fetch', country_code)
+    })
     .then(response => {
       console.log(country_name, 'Fetched!')
       var geojson = topo_2_geo(response.data);
