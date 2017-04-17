@@ -165,7 +165,7 @@ function set_old_layer(dimension, state) {
 function get_layers(state, geojson) {
   return state.units.reduce((h, u) => {
     state.enrichments.forEach(e => {
-      if (geojson.features[0].properties[e + '-' + u]) {
+      if (has_value_for_unit(geojson, u, e)) {
         h[u + '-' + e + '-'  + 'linear'] = create_layer(u, e, geojson, 'linear')
         h[u + '-' + e + '-' + 'logarithmic'] = create_layer(u, e, geojson, 'logarithmic')
       }
@@ -174,15 +174,21 @@ function get_layers(state, geojson) {
   }, {})
 }
 
-function get_max(geojson, unit, enrichment) {
+function has_value_for_unit(geojson, unit, enrichment) {
+  return geojson.features.find(f => { return f.properties[enrichment + '-' + unit]})
+}
+
+function high_low(geojson, unit, enrichment, extreme) {
   var max;
+  var min;
   geojson.features.forEach(f => {
     var value = f.properties[enrichment + '-' + unit];
-    max = max ? (value > max ? value : max) : value;
+    max = max ? (value >= max ? value : max) : value;
+    min = min ? (value <= min ? value : min) : value;
     // min = min ? (value < min ? value : min) : value;
   });
 
-  return max;
+  return [min, max];
 }
 // fraction is for 0..1, for leaflet opacity
 function get_strength(val, high, scaleColorBy, fraction) {
@@ -195,10 +201,12 @@ function get_strength(val, high, scaleColorBy, fraction) {
 }
 
 function create_layer(unit, enrichment, geojson, scale) {
-  var high = get_max(geojson, unit, enrichment);
+  console.log(unit, enrichment, geojson, scale)
+  var min_max = high_low(geojson, unit, enrichment);
+
   return L.geoJSON(geojson, {
     style: (f) => {
-      var strength = get_strength(f.properties[enrichment + '-' + unit], high, scale, true);
+      var strength = get_strength(f.properties[enrichment + '-' + unit], min_max[1], scale, true);
       return {
         fillColor: 'red',
         color: 'black',
@@ -210,6 +218,7 @@ function create_layer(unit, enrichment, geojson, scale) {
     }
   })
 }
+
 // function create_layer(unit, dimension, scale, geojson) {
 //   var high = get_max(geojson, unit, dimension);
 //   return L.geoJSON(geojson, {
