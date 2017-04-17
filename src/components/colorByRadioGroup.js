@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { recolorCountries } from '../actions/countryAction';
 import { updateUnit } from '../actions/countryAction';
+import { rescaleColorCountries } from '../actions/countryAction';
 import { Grid } from 'react-bootstrap';
 import { Row } from 'react-bootstrap';
 import { Col } from 'react-bootstrap';
@@ -15,6 +16,14 @@ class ColorByRadioGroup extends Component {
      }
      this.setEnrichment = this.setEnrichment.bind(this)
      this.updateUnit = this.updateUnit.bind(this)
+     this.setScale = this.setScale.bind(this)
+  }
+
+  setScale(e) {
+    this.setState({
+      scale: e.target.value
+    })
+    this.props.dispatch(rescaleColorCountries(e.target.value));
   }
 
   setEnrichment(e) {
@@ -42,14 +51,13 @@ class ColorByRadioGroup extends Component {
     var countries_raw = this.props.country.countries_raw;
     var enrichment = this.props.country.enrichment;
     var unit = this.props.country.unit;
-    var side_style = this.props.side_style;
-    var style = {width:'250px', textAlign: 'left'}
+    var style = {width:'250px', textAlign: 'left', fontSize:'16px'}
 
 
     var visible_human = is_visible(country, countries_raw, 'human');
     var visible_population = (unit === 'human') ? 'inline' : 'none';
     var visible_prevalence = unit !== 'human' ? 'inline' : 'none';
-
+    var scale = this.props.country.scale;
     var style_human = {display: visible_human};
     var style_population = {...style, display: visible_population};
     var style_prevalence = {...style, display: visible_prevalence};
@@ -73,6 +81,17 @@ class ColorByRadioGroup extends Component {
           <Col xs={12} md={6} style={no_display}><input type="radio" checked={enrichment === "prev_density"} onChange={this.setEnrichment} value="prev_density"  />prev density</Col>
         </Row>
       </Grid>
+      <hr/>
+        <Grid style={style}>
+          <Row className="show-grid">
+            <Col xs={12} md={6}>
+              <input type='radio' checked={scale === "linear"} onChange={this.setScale} value="linear" /> linear
+            </Col>
+            <Col xs={12} md={6}>
+              <input type='radio' checked={scale === "logarithmic"} onChange={this.setScale} value='logarithmic'  /> logarithmic
+            </Col>
+          </Row>
+        </Grid>
     </div>;
   }
 }

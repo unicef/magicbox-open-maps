@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { rescaleColorCountries } from '../actions/countryAction';
 import { recordZoom } from '../actions/mapAction';
 import { setPanLocation } from '../actions/mapAction';
 import ColorByRadioGroup from './colorByRadioGroup';
@@ -47,18 +46,11 @@ class MyMap extends React.Component {
       //  colorBy: this.props.country.colorBy,
       //  scaleColorBy: this.props.country.scaleColorBy,
      }
-     this.setScale = this.setScale.bind(this)
      this.setZoomLevel = this.setZoomLevel.bind(this)
      this.setMapCenter = this.setMapCenter.bind(this)
      this.download_geojson = this.download_geojson.bind(this)
   }
 
-  setScale(e) {
-    this.setState({
-      scale: e.target.value
-    })
-    this.props.dispatch(rescaleColorCountries(e.target.value));
-  }
   download_geojson(e) {
     var blob = new Blob([JSON.stringify(this.props.country.geojson)], {type: "data:text/json;charset=utf-8"});
     FileSaver.saveAs(blob, this.props.country.country + '.json');
@@ -108,28 +100,11 @@ class MyMap extends React.Component {
         remove_layers(this.props.country);
         window.map.setView(map_center, zoom_level)
         this.props.country.layers[unit + '-' + enrichment + '-' + scale].addTo(window.map);
-        // if (colorBy.match(/population/)) {
-        //   this.props.country.layer_population[scaleColorBy].addTo(window.map);
-        // } else {
-        //   this.props.country.layer_pop_density[scaleColorBy].addTo(window.map);
-        // }
       }
     }
     return <div >
       <div id='floating-panel'>
-        <ColorByRadioGroup country={this.props.country} side_style={side_style}/>
-        <hr/>
-          <Grid style={grid_style}>
-            <Row className="show-grid">
-              <Col xs={12} md={6}>
-                <input type='radio' checked={scale === "linear"} onChange={this.setScale} value="linear" /> linear
-              </Col>
-              <Col xs={12} md={6}>
-                <input type='radio' checked={scale === "logarithmic"} onChange={this.setScale} value='logarithmic'  /> logarithmic
-              </Col>
-            </Row>
-          </Grid>
-
+        <ColorByRadioGroup country={this.props.country}/>
         <hr/>
         <div style={shape_loaded}>
           <p style={side_style}>
