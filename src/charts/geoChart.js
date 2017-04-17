@@ -37,7 +37,7 @@ class GeoChart extends React.Component {
     if (countries[unit][enrichment]) {
       data = countries[unit][enrichment][scale]
     } else {
-      data = [['Country', 'Popularity'], ['Germany', 200]]
+      data = [['Country', 'Popularity']]
     }
 
     return (
