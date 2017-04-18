@@ -7,6 +7,7 @@ import L from 'leaflet';
 import { Grid } from 'react-bootstrap';
 import { Row } from 'react-bootstrap';
 import { Col } from 'react-bootstrap';
+
 var FileSaver = require('file-saver');
 
 require('../css/overlay-controls-box.css');
@@ -89,7 +90,12 @@ class MyMap extends React.Component {
       display: !!geojson ? 'inline' : 'none',
       fontSize: '14px',
     };
-
+    var map_meta_overlay = {
+      position: 'absolute',
+      top: '100px',
+      left: '20px',
+      height:'335px',
+    }
     if (window.map) {
       window.map.on('dragend', this.setMapCenter);
       window.map.on('zoomend', this.setZoomLevel);
@@ -103,7 +109,7 @@ class MyMap extends React.Component {
       }
     }
     return <div >
-      <div id='floating-panel'>
+      <div className='floating-panel' style={map_meta_overlay}>
         <ColorByRadioGroup country={this.props.country}/>
         <hr/>
         <div style={shape_loaded}>

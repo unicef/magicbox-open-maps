@@ -22,6 +22,7 @@ export default function reducer(state={
   scales: ['linear', 'logarithmic'],
   units: ['human', 'aegypti'],
   unit: 'human',
+  data_sources: null,
   // Array of countries and their meta data from api
   countries_raw: null,
   // ISO 3 letter code
@@ -33,6 +34,8 @@ export default function reducer(state={
   scale: 'linear',
   fetching: false,
   fetched: false,
+  data_source: null,
+  data_source_url: null,
 
   geoChart_data: {human: {}, aegypti: {}},
   // An object with keys: 'linear' and 'logarithmic'
@@ -57,6 +60,7 @@ export default function reducer(state={
     case 'COUNTRIES_FETCHED':
       // json list of countries with population available
       var countries_raw = action.payload.data.countries;
+      var data_sources = action.payload.data.data_sources;
       var geoChart_data = geochart_data(
         countries_raw,
         state.units,
@@ -67,8 +71,11 @@ export default function reducer(state={
 
       return {
         ...state,
+        data_sources: data_sources,
         countries_raw: countries_raw,
         geoChart_data: geoChart_data,
+        data_source: data_sources[state.unit].source,
+        data_source_url: data_sources[state.unit].source_url,
         is_loaded: true
       }
       break;
@@ -81,10 +88,13 @@ export default function reducer(state={
       case 'UPDATE_UNIT':
         // Process countries for color on Google geoChart
         var unit = action.payload.unit;
+        console.log(state.countries_raw, '!!!!')
         return {
           ...state,
-          unit: action.payload.unit,
-          enrichment: unit === 'human' ? 'population' : 'prevalence'
+          unit: unit,
+          enrichment: unit === 'human' ? 'population' : 'prevalence',
+          data_source: state.geojson ? state.geojson.data_sources[unit].source : state.data_sources[unit].source,
+          data_source_url: state.geojson ? state.geojson.data_sources[unit].source_url : state.data_sources[unit].source_url,
         }
         break;
       case 'RESCALE_MAPS_COLOR':
@@ -117,6 +127,8 @@ export default function reducer(state={
       return {
         ...state,
         // admin_level: action.payload.admin_level,
+        data_source: geojson.data_sources[state.unit].source,
+        data_source_url: geojson.data_sources[state.unit].source_url,
         country: action.payload.country,
         geojson: geojson,
         // layer_population_old: set_old_layer('population', state),

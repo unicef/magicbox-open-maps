@@ -29,7 +29,7 @@ class App extends Component {
           <Grid >
             <Row className="show-grid">
               <Col md={12}>
-                <Geo unit={this.props.country.unit} enrichment={this.props.country.enrichment} scale={this.props.country.scale} geoChart_data={this.props.country.geoChart_data}/>
+                <Geo data_source={this.props.country.data_source} data_source_url={this.props.country.data_source_url} unit={this.props.country.unit} enrichment={this.props.country.enrichment} scale={this.props.country.scale} geoChart_data={this.props.country.geoChart_data}/>
               </Col>
             </Row>
             <Row className="show-grid">

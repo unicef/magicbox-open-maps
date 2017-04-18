@@ -95,6 +95,7 @@ export function fetchCountry(country_name) {
     .then(response => {
       console.log(country_name, 'Fetched!')
       var geojson = topo_2_geo(response.data);
+      geojson.data_sources = response.data.data_sources;
       // window.geojson just for debug in browser
       window.geojson = geojson;
       dispatch({

@@ -32,16 +32,33 @@ class GeoChart extends React.Component {
     var enrichment = this.props.enrichment;
     var scale = this.props.scale;
     var unit = this.props.unit;
+    var data_source = this.props.data_source;
+    var data_source_url = this.props.data_source_url;
     var data;
+    var source_overlay_visible = data_source_url ? 'inline' : 'none';
+    var style_data_source_overlay = {
+      position: 'absolute',
+      width: '200px',
+      top: '100px',
+      left: '20px',
+      padding:'20px',
+      lineHeight:'20px',
+      display: source_overlay_visible
+
+    }
 
     if (countries[unit][enrichment]) {
       data = countries[unit][enrichment][scale]
     } else {
-      data = [['Country', 'Popularity']]
+        data = [['Country', 'Popularity']]
     }
 
     return (
       <div className={'my-pretty-chart-container'}>
+        <div className='floating-panel' style={style_data_source_overlay}>
+          Population data is sourced from <a href={data_source_url}>{data_source}</a>
+        </div>
+
         <Chart
           chartType="GeoChart"
           data={ data }
