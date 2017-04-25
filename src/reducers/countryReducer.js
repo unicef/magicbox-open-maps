@@ -88,7 +88,6 @@ export default function reducer(state={
       case 'UPDATE_UNIT':
         // Process countries for color on Google geoChart
         var unit = action.payload.unit;
-        console.log(state.countries_raw, '!!!!')
         return {
           ...state,
           unit: unit,
@@ -190,17 +189,17 @@ function has_value_for_unit(geojson, unit, enrichment) {
   return geojson.features.find(f => { return f.properties[enrichment + '-' + unit]})
 }
 
-function high_low(geojson, unit, enrichment, extreme) {
+function get_high(geojson, unit, enrichment, extreme) {
   var max;
-  var min;
+  // var min;
   geojson.features.forEach(f => {
     var value = f.properties[enrichment + '-' + unit];
     max = max ? (value >= max ? value : max) : value;
-    min = min ? (value <= min ? value : min) : value;
+    // min = min ? (value <= min ? value : min) : value;
     // min = min ? (value < min ? value : min) : value;
   });
 
-  return [min, max];
+  return max;
 }
 // fraction is for 0..1, for leaflet opacity
 function get_strength(val, high, scaleColorBy, fraction) {
@@ -209,16 +208,15 @@ function get_strength(val, high, scaleColorBy, fraction) {
   } else {
     var log = high/4;
     return val >= log ? (val/high) : (val/log)
+    // return Math.log(val+1)/Math.log(high+1)
   }
 }
 
 function create_layer(unit, enrichment, geojson, scale) {
-  console.log(unit, enrichment, geojson, scale)
-  var min_max = high_low(geojson, unit, enrichment);
-
+  var max = get_high(geojson, unit, enrichment);
   return L.geoJSON(geojson, {
     style: (f) => {
-      var strength = get_strength(f.properties[enrichment + '-' + unit], min_max[1], scale, true);
+      var strength = get_strength(f.properties[enrichment + '-' + unit], max, scale, true);
       return {
         fillColor: 'red',
         color: 'black',

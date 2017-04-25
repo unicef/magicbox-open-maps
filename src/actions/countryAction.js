@@ -88,7 +88,7 @@ export function fetchCountry(country_name) {
     //   }
     // })
 
-    axios.get(api_url + 'population/topojson/' + country_code)
+    axios.get(api_url + 'population/' + country_code)
     .catch(err => {
       alert('There was an error trying to fetch', country_code)
     })
