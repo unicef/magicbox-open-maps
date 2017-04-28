@@ -15,7 +15,7 @@ export function fetchCountries() {
       // })
     axios.get(api_url + 'population')
     .catch(err => {
-      alert('there was an error to fetch the list of countries')
+      alert('there was an error to fetch the list of countries.', JSON.stringify(err));
     })
     .then(response => {
       dispatch({
