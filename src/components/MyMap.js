@@ -94,7 +94,7 @@ class MyMap extends React.Component {
       position: 'absolute',
       top: '100px',
       left: '20px',
-      height:'335px',
+      height: !!geojson ? '370px' : '200px',
     }
     if (window.map) {
       window.map.on('dragend', this.setMapCenter);
@@ -117,6 +117,8 @@ class MyMap extends React.Component {
             {this.props.country.country_name}
             <br/>
             admin level: {this.props.country.admin_level}
+            <br/>
+            raster: {this.props.country.raster_name}
             <br/>
             <button type="button" className="btn btn-primary" onClick={this.download_geojson}>download</button>
           </p>

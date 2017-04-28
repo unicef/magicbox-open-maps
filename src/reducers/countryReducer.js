@@ -51,7 +51,8 @@ export default function reducer(state={
       var country = action.payload.country;
       return {
         ...state,
-        admin_level: determine_admin_level(country, state),
+        admin_level: get_raster_detail(country, state, 'admin_level'),
+        raster_name: get_raster_detail(country, state, 'raster'),
         country: country,
         country_name: action.payload.country_name,
         is_loaded: false
@@ -207,8 +208,8 @@ function get_strength(val, high, scaleColorBy, fraction) {
     return fraction ? (val / high) : val;
   } else {
     var log = high/4;
-    //return val >= log ? (val/high) : (val/log)
-    return Math.log(val+1)/Math.log(high+1)
+    return val >= log ? (val/high) : (val/log)
+    // return Math.log(val+1)/Math.log(high+1)
   }
 }
 
@@ -333,7 +334,7 @@ function colorByValue(countries_raw, country, unit, dimension, scale, high) {
 }
 
 
-function determine_admin_level(country_iso, state) {
+function get_raster_detail(country_iso, state, kind) {
   var primary_raster = Object.keys(state.countries_raw[country_iso])[0];
-  return state.countries_raw[country_iso][primary_raster][0].admin_level;
+  return state.countries_raw[country_iso][primary_raster][0][kind];
 }
