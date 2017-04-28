@@ -63,8 +63,8 @@ class ColorByRadioGroup extends Component {
     var visible_prevalence = unit !== 'human' ? 'inline' : 'none';
     var scale = this.props.country.scale;
     var style_human = {display: visible_human};
-    var style_population = {...style, display: visible_population};
-    var style_prevalence = {...style, display: visible_prevalence};
+    var style_population = { display: visible_population};
+    var style_prevalence = { display: visible_prevalence};
     var no_display = {display: 'none'};
 
     return  <div >

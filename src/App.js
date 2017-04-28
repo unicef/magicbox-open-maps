@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { fetchCountries } from './actions/countryAction';
 import Geo from './charts/geoChart';
 import MyMap from './components/MyMap';
+import NavBarInstance from './components/NavBarInstance';
 import { Grid, Row, Col } from 'react-bootstrap';
 
 import './App.css';
@@ -26,6 +27,7 @@ class App extends Component {
     return (
       <div className="App">
          <Loader loaded={this.props.country.is_loaded}/>
+         <NavBarInstance />
           <Grid >
             <Row className="show-grid">
               <Col md={12}>

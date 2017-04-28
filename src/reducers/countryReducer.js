@@ -207,8 +207,8 @@ function get_strength(val, high, scaleColorBy, fraction) {
     return fraction ? (val / high) : val;
   } else {
     var log = high/4;
-    return val >= log ? (val/high) : (val/log)
-    // return Math.log(val+1)/Math.log(high+1)
+    //return val >= log ? (val/high) : (val/log)
+    return Math.log(val+1)/Math.log(high+1)
   }
 }
 
