@@ -1,20 +1,23 @@
 import React from 'react';
-import { Navbar } from 'react-bootstrap';
-import { Nav } from 'react-bootstrap';
-import { NavItem } from 'react-bootstrap';
-import { MenuItem } from 'react-bootstrap';
+import { Grid } from 'react-bootstrap';
+import { Row } from 'react-bootstrap';
+import { Col } from 'react-bootstrap';
 
 class NavBarInstance extends React.Component {
   render() {
+    var style = {
+      width: '100%',
+      position: 'absolute',
+      top: '20px',
+      zIndex: 2
+    }
     return <div>
-    <Navbar>
-      <Navbar.Header>
-      </Navbar.Header>
-      <Nav pullRight>
-        <NavItem href='https://medium.com/@mikefabrikant/mapping-the-worlds-population-with-worldpop-org-uk-f71a336befef'>Explanation</NavItem>
-
-      </Nav>
-    </Navbar>
+    <Grid style={style}>
+      <Row className="show-grid">
+        <Col xs={8} md={8} ></Col>
+        <Col xs={2} md={2}> <a href='https://medium.com/@mikefabrikant/mapping-the-worlds-population-with-worldpop-org-uk-f71a336befef'> Explanation</a></Col>
+      </Row>
+    </Grid>
     </div>
   }
 }
